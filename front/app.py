@@ -69,6 +69,16 @@ st.markdown(
         font-weight: 800;
         margin: 0.55rem 0 0;
     }
+    .score-badge {
+        flex: 0 0 auto;
+        border-radius: 999px;
+        padding: 0.45rem 0.85rem;
+        background: #fff0cf;
+        border: 1px solid #f3cf8d;
+        color: #7a4104;
+        font-weight: 800;
+        white-space: nowrap;
+    }
     .metric-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -101,6 +111,19 @@ st.markdown(
     .meta {
         color: #444;
         line-height: 1.65;
+    }
+    .score-summary {
+        padding: 1rem 1.1rem;
+        border-radius: 12px;
+        background: #f7fbff;
+        border: 1px solid #cfe4ff;
+        color: #24384f;
+        line-height: 1.75;
+        margin: 1.1rem 0 0.5rem;
+    }
+    .score-summary-title {
+        font-weight: 800;
+        margin-bottom: 0.45rem;
     }
     .api-note {
         padding: 0.8rem 1rem;
@@ -166,11 +189,24 @@ if recommend_button:
         st.caption(f"오류 내용: {error}")
     else:
         st.subheader("🍱 오늘의 추천 메뉴 TOP 3")
+        score_summaries = []
 
         for index, menu in enumerate(data["recommendations"]):
             matched = ", ".join(menu["matched_ingredients"]) if menu["matched_ingredients"] else "없음"
             missing = ", ".join(menu["missing_ingredients"]) if menu["missing_ingredients"] else "없음"
             all_ingredients = ", ".join(menu["ingredients"])
+            score_detail = menu["score_detail"]
+            score_text = (
+                f"예산 {score_detail['budget_score']}점 + "
+                f"시간 {score_detail['time_score']}점 + "
+                f"재료 {score_detail['ingredient_score']}점 = "
+                f"총 {score_detail['total_score']}점"
+            )
+            score_summaries.append(
+                f"{RANK_LABELS[index]} {menu['name']}은 예산 {score_detail['budget_score']}점, "
+                f"시간 {score_detail['time_score']}점, 재료 {score_detail['ingredient_score']}점을 받아 "
+                f"총 {score_detail['total_score']}점입니다"
+            )
 
             st.markdown(
                 f"""
@@ -180,6 +216,7 @@ if recommend_button:
                             <div class="rank">🏆 {RANK_LABELS[index]}</div>
                             <div class="menu-name">{menu["name"]}</div>
                         </div>
+                        <div class="score-badge">총 {menu["score"]}점</div>
                     </div>
                     <div class="metric-grid">
                         <div class="metric">
@@ -196,6 +233,9 @@ if recommend_button:
                         </div>
                     </div>
                     <div class="section-block meta">
+                        📊 <strong>점수 계산</strong>: {score_text}
+                    </div>
+                    <div class="section-block meta">
                         🧂 <strong>전체 필요 재료</strong>: {all_ingredients}<br>
                         ✅ <strong>있는 재료</strong>: {matched}<br>
                         🛒 <strong>추가로 필요한 재료</strong>: {missing}
@@ -210,6 +250,17 @@ if recommend_button:
                 """,
                 unsafe_allow_html=True,
             )
+
+        st.markdown(
+            f"""
+            <div class="score-summary">
+                <div class="score-summary-title">📊 점수 산출 요약</div>
+                {'. '.join(score_summaries)}. 점수는 FastAPI 백엔드에서 예산 조건, 조리 시간 조건,
+                보유 재료 일치 수를 합산해 계산했습니다.
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
         st.markdown(
             '<div class="api-note">✅ FastAPI <strong>POST /recommend</strong> 응답으로 받은 추천 결과입니다.</div>',
