@@ -1,0 +1,18 @@
+services:
+  back:
+    build: ./back
+    container_name: honbab-back
+    restart: always
+    ports:
+      - "8000:8000"
+
+  front:
+    build: ./front
+    container_name: honbab-front
+    restart: always
+    ports:
+      - "80:8501"
+    environment:
+      - API_URL=http://back:8000
+    depends_on:
+      - back
