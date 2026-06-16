@@ -17,18 +17,6 @@ class RecommendRequest(BaseModel):
     max_time: str = Field(..., description="조리 가능 시간")
     ingredients: list[str] = Field(default_factory=list, description="보유 재료")
 
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "budget": "5000원 이하",
-                    "max_time": "20분 이내",
-                    "ingredients": ["밥", "계란", "김치"],
-                }
-            ]
-        }
-    }
-
 
 class Menu(BaseModel):
     name: str
@@ -145,11 +133,18 @@ async def recommend(request: RecommendRequest) -> dict:
         ),
     )
 
-    all_candidates = []
-    for menu in ranked_menus:
-        all_candidates.append({key: value for key, value in menu.items() if key != "_matched_count"})
+    all_candidates = [
+        {key: value for key, value in menu.items() if key != "_matched_count"}
+        for menu in ranked_menus
+    ]
 
     return {
+        "processed_by": "FastAPI POST /recommend",
+        "logic_summary": {
+            "candidate_count": len(all_candidates),
+            "ranking_rule": "total_score, ingredient_match_count, lower_cost, shorter_time",
+            "score_rule": "budget_score + time_score + ingredient_score",
+        },
         "request_summary": {
             "budget": request.budget,
             "max_time": request.max_time,
