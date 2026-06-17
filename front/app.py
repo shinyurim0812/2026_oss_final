@@ -79,6 +79,17 @@ st.markdown(
         font-weight: 800;
         white-space: nowrap;
     }
+    .type-badge {
+        display: inline-block;
+        margin-top: 0.55rem;
+        border-radius: 999px;
+        padding: 0.35rem 0.7rem;
+        background: #eef9f0;
+        border: 1px solid #c9ebd0;
+        color: #236534;
+        font-size: 0.92rem;
+        font-weight: 800;
+    }
     .metric-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -212,6 +223,7 @@ if recommend_button:
             missing = ", ".join(menu["missing_ingredients"]) if menu["missing_ingredients"] else "없음"
             all_ingredients = ", ".join(menu["ingredients"])
             score_detail = menu["score_detail"]
+            recommend_type = menu["recommend_type"]
             score_text = (
                 f"예산 {score_detail['budget_score']}점 + "
                 f"시간 {score_detail['time_score']}점 + "
@@ -226,6 +238,7 @@ if recommend_button:
                         <div>
                             <div class="rank">🏆 {RANK_LABELS[index]}</div>
                             <div class="menu-name">{menu["name"]}</div>
+                            <div class="type-badge">{recommend_type["emoji"]} {recommend_type["label"]}</div>
                         </div>
                         <div class="score-badge">총 {menu["score"]}점</div>
                     </div>

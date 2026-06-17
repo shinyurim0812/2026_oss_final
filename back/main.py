@@ -49,6 +49,16 @@ def load_menus() -> list[Menu]:
         return [Menu(**menu) for menu in json.load(file)]
 
 
+def get_recommend_type(menu: Menu, ingredient_score: int) -> dict:
+    if ingredient_score >= 2:
+        return {"emoji": "🥬", "label": "냉장고 재료 활용형"}
+    if menu.time <= 10:
+        return {"emoji": "⏱️", "label": "빠른 조리형"}
+    if menu.cost <= 4000:
+        return {"emoji": "💰", "label": "가성비형"}
+    return {"emoji": "🍚", "label": "든든한 한 끼형"}
+
+
 def score_menu(menu: Menu, request: RecommendRequest) -> dict:
     budget_limit = BUDGET_LIMITS.get(request.budget)
     time_limit = TIME_LIMITS.get(request.max_time)
@@ -103,6 +113,7 @@ def score_menu(menu: Menu, request: RecommendRequest) -> dict:
             "ingredient_score": ingredient_score,
             "total_score": total_score,
         },
+        "recommend_type": get_recommend_type(menu, ingredient_score),
         "cost": menu.cost,
         "time": menu.time,
         "difficulty": menu.difficulty,
