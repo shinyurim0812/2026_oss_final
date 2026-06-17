@@ -125,6 +125,12 @@ st.markdown(
         font-weight: 800;
         margin-bottom: 0.45rem;
     }
+    .score-summary-rule {
+        margin-top: 0.55rem;
+        padding-top: 0.65rem;
+        border-top: 1px solid #d9e9fb;
+        color: #49657d;
+    }
     .api-note {
         padding: 0.8rem 1rem;
         border-radius: 10px;
@@ -167,7 +173,7 @@ summary_time = max_time if max_time else "아직 선택하지 않음"
 summary_ingredients = ", ".join(ingredients) if ingredients else "선택한 재료 없음"
 st.caption(f"💰 예산: {summary_budget} | ⏱️ 시간: {summary_time} | 🥬 재료: {summary_ingredients}")
 
-recommend_button = st.button("🍽️ 식단 추천받기", type="primary", use_container_width=True)
+recommend_button = st.button("🍽️ 식단 추천 요청하기!", type="primary", use_container_width=True)
 
 if recommend_button:
     if budget is None or max_time is None:
@@ -189,7 +195,6 @@ if recommend_button:
         st.caption(f"오류 내용: {error}")
     else:
         st.subheader("🍱 오늘의 추천 메뉴 TOP 3")
-        score_summaries = []
 
         for index, menu in enumerate(data["recommendations"]):
             matched = ", ".join(menu["matched_ingredients"]) if menu["matched_ingredients"] else "없음"
@@ -201,11 +206,6 @@ if recommend_button:
                 f"시간 {score_detail['time_score']}점 + "
                 f"재료 {score_detail['ingredient_score']}점 = "
                 f"총 {score_detail['total_score']}점"
-            )
-            score_summaries.append(
-                f"{RANK_LABELS[index]} {menu['name']}은 예산 {score_detail['budget_score']}점, "
-                f"시간 {score_detail['time_score']}점, 재료 {score_detail['ingredient_score']}점을 받아 "
-                f"총 {score_detail['total_score']}점입니다"
             )
 
             st.markdown(
@@ -252,11 +252,15 @@ if recommend_button:
             )
 
         st.markdown(
-            f"""
+            """
             <div class="score-summary">
-                <div class="score-summary-title">📊 점수 산출 요약</div>
-                {'. '.join(score_summaries)}. 점수는 FastAPI 백엔드에서 예산 조건, 조리 시간 조건,
-                보유 재료 일치 수를 합산해 계산했습니다.
+                <div class="score-summary-title">📊 점수 산출 기준</div>
+                💰 <strong>예산</strong>: 메뉴 비용이 예산 이하이면 +2점, 예산 상관없음은 +1점<br>
+                ⏱️ <strong>시간</strong>: 메뉴 시간이 가능 시간 이하이면 +2점, 시간 상관없음은 +1점<br>
+                🥬 <strong>재료</strong>: 보유 재료와 메뉴 재료가 1개 일치할 때마다 +1점
+                <div class="score-summary-rule">
+                    동점이면 재료 일치 수 → 낮은 비용 → 짧은 조리 시간 순으로 추천합니다.
+                </div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -267,4 +271,4 @@ if recommend_button:
             unsafe_allow_html=True,
         )
 else:
-    st.info("조건을 고른 뒤 🍽️ 식단 추천받기 버튼을 눌러주세요.")
+    st.info("조건을 고른 뒤 🍽️ 식단 추천 요청하기! 버튼을 눌러주세요.")
