@@ -194,6 +194,17 @@ if recommend_button:
         st.error("FastAPI 서버에 연결할 수 없습니다. 백엔드 컨테이너가 실행 중인지 확인해주세요.")
         st.caption(f"오류 내용: {error}")
     else:
+        st.markdown(
+            '<div class="api-note">✅ FastAPI <strong>POST /recommend</strong> 응답으로 받은 추천 결과입니다.</div>',
+            unsafe_allow_html=True,
+        )
+
+        with st.expander("FastAPI 통신 JSON 확인"):
+            st.caption("Streamlit이 FastAPI로 보낸 실제 요청 JSON")
+            st.json(payload)
+            st.caption("FastAPI가 Streamlit으로 반환한 실제 응답 JSON")
+            st.json(data)
+
         st.subheader("🍱 오늘의 추천 메뉴 TOP 3")
 
         for index, menu in enumerate(data["recommendations"]):
@@ -263,12 +274,7 @@ if recommend_button:
                 </div>
             </div>
             """,
-            unsafe_allow_html=True,
-        )
-
-        st.markdown(
-            '<div class="api-note">✅ FastAPI <strong>POST /recommend</strong> 응답으로 받은 추천 결과입니다.</div>',
-            unsafe_allow_html=True,
-        )
+                unsafe_allow_html=True,
+            )
 else:
     st.info("조건을 고른 뒤 🍽️ 식단 추천 요청하기! 버튼을 눌러주세요.")
